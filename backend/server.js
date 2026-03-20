@@ -88,6 +88,7 @@ app.get("/consultas", autenticar, (req, res) => {
   res.json(consultas);
 });
 
-app.listen(3000, () => {
-  console.log("Servidor rodando em http://localhost:3000");
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log("Servidor rodando");
 });
