@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Clínica</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3"></script>
+</head>
+
+<body>
+
+    <div id="app">
+        <h2>Cadastro</h2>
+        <input v-model="email" placeholder="Email">
+        <input v-model="senha" placeholder="Senha">
+        <button @click="cadastrar">Cadastrar</button>
+
+        <h2>Login</h2>
+        <button @click="login">Entrar</button>
+
+        <h2>Agendar Consulta</h2>
+        <input v-model="data" placeholder="Data">
+        <input v-model="hora" placeholder="Hora">
+        <input v-model="cep" placeholder="CEP">
+        <button @click="agendar">Agendar</button>
+
+        <h2>Consultas</h2>
+        <button @click="listar">Ver Consultas</button>
+        <ul>
+            <li v-for="c in consultas">
+                {{ c.data }} - {{ c.hora }} - {{ c.endereco }} - {{ c.clima }}
+            </li>
+        </ul>
+    </div>
+
+    <script>
+        const app = {
+            data() {
+                return {
+                    email: "",
+                    senha: "",
+                    data: "",
+                    hora: "",
+                    cep: "",
+                    token: "",
+                    consultas: []
+                }
+            },
+            methods: {
+                async cadastrar() {
+                    await fetch("http://localhost:3000/cadastro", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ email: this.email, senha: this.senha })
+                    });
+                    alert("Cadastrado");
+                },
+
+                async login() {
+                    const res = await fetch("http://localhost:3000/login", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ email: this.email, senha: this.senha })
+                    });
+
+                    const data = await res.json();
+                    this.token = data.token;
+                    alert("Logado");
+                },
+
+                async agendar() {
+                    await fetch("http://localhost:3000/agendar", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Authorization": this.token
+                        },
+                        body: JSON.stringify({
+                            data: this.data,
+                            hora: this.hora,
+                            cep: this.cep
+                        })
+                    });
+
+                    alert("Agendado");
+                },
+
+                async listar() {
+                    const res = await fetch("http://localhost:3000/consultas", {
+                        headers: {
+                            "Authorization": this.token
+                        }
+                    });
+
+                    this.consultas = await res.json();
+                }
+            }
+        }
+
+        Vue.createApp(app).mount("#app");
+    </script>
+
+</body>
+
+</html>
